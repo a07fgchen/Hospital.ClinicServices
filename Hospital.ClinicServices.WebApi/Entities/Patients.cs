@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hospital.ClinicServices.WebApi.Entities;
 
+//病例表
 [Table("Patients")]
 public class Patient
 {

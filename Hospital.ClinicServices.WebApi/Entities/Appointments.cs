@@ -3,22 +3,23 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hospital.ClinicServices.WebApi.Entities;
 
+// 掛號表
 [Table("Appointments")]
 public class Appointment
 {
     [Key]
-    public int AppointmentID {get; set;} //掛號序號
+    public int AppointmentId {get; set;} //掛號序號
 
     [Required]
-    public int ScheduleID {get; set;} //排班序號
+    public int ScheduleId {get; set;} //排班序號
 
-    [ForeignKey("ScheduleID")]
+    [ForeignKey("ScheduleId")]
     virtual public Schedule? Schedule {get; set;}
 
     [Required]
-    public int PatientID {get; set;} //病例號碼
+    public int PatientId {get; set;} //病例號碼
 
-    [ForeignKey("PatientID")]
+    [ForeignKey("PatientId")]
     virtual public Patient? Patient {get; set;}
     
     [Required]

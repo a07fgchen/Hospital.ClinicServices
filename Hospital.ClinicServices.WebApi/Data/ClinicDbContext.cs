@@ -30,7 +30,7 @@ public class ClinicDbContext : DbContext
             .HasIndex(s => new { s.ServiceDate, s.Shift });
 
         modelBuilder.Entity<Appointment>()
-            .HasIndex(a => new { a.ScheduleID, a.SequenceNumber})
+            .HasIndex(a => new { a.ScheduleId, a.SequenceNumber})
             .IsUnique();
     }
 }

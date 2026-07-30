@@ -15,7 +15,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 name: "Doctors",
                 columns: table => new
                 {
-                    DoctorID = table.Column<int>(type: "int", nullable: false)
+                    DoctorId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Department = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
@@ -23,7 +23,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Doctors", x => x.DoctorID);
+                    table.PrimaryKey("PK_Doctors", x => x.DoctorId);
                 });
 
             migrationBuilder.CreateTable(
@@ -46,24 +46,24 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 name: "Schedules",
                 columns: table => new
                 {
-                    ScheduleID = table.Column<int>(type: "int", nullable: false)
+                    ScheduleId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    DoctorID = table.Column<int>(type: "int", nullable: false),
+                    DoctorId = table.Column<int>(type: "int", nullable: false),
                     ServiceDate = table.Column<DateTime>(type: "date", nullable: false),
                     Shift = table.Column<int>(type: "int", nullable: false),
-                    MaxQuata = table.Column<int>(type: "int", nullable: false),
-                    CurrentRegister = table.Column<int>(type: "int", nullable: false),
+                    MaxQuota = table.Column<int>(type: "int", nullable: false),
+                    CurrentRegisterCount = table.Column<int>(type: "int", nullable: false),
                     CurrentCallingNumber = table.Column<int>(type: "int", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Schedules", x => x.ScheduleID);
+                    table.PrimaryKey("PK_Schedules", x => x.ScheduleId);
                     table.ForeignKey(
-                        name: "FK_Schedules_Doctors_DoctorID",
-                        column: x => x.DoctorID,
+                        name: "FK_Schedules_Doctors_DoctorId",
+                        column: x => x.DoctorId,
                         principalTable: "Doctors",
-                        principalColumn: "DoctorID",
+                        principalColumn: "DoctorId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
@@ -71,40 +71,40 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 name: "Appointments",
                 columns: table => new
                 {
-                    AppointmentID = table.Column<int>(type: "int", nullable: false)
+                    AppointmentId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ScheduleID = table.Column<int>(type: "int", nullable: false),
-                    PatientID = table.Column<int>(type: "int", nullable: false),
+                    ScheduleId = table.Column<int>(type: "int", nullable: false),
+                    PatientId = table.Column<int>(type: "int", nullable: false),
                     SequenceNumber = table.Column<int>(type: "int", nullable: false),
                     AppointmentStatus = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Appointments", x => x.AppointmentID);
+                    table.PrimaryKey("PK_Appointments", x => x.AppointmentId);
                     table.ForeignKey(
-                        name: "FK_Appointments_Patients_PatientID",
-                        column: x => x.PatientID,
+                        name: "FK_Appointments_Patients_PatientId",
+                        column: x => x.PatientId,
                         principalTable: "Patients",
                         principalColumn: "PatientID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Appointments_Schedules_ScheduleID",
-                        column: x => x.ScheduleID,
+                        name: "FK_Appointments_Schedules_ScheduleId",
+                        column: x => x.ScheduleId,
                         principalTable: "Schedules",
-                        principalColumn: "ScheduleID",
+                        principalColumn: "ScheduleId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_PatientID",
+                name: "IX_Appointments_PatientId",
                 table: "Appointments",
-                column: "PatientID");
+                column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Appointments_ScheduleID_SequenceNumber",
+                name: "IX_Appointments_ScheduleId_SequenceNumber",
                 table: "Appointments",
-                columns: new[] { "ScheduleID", "SequenceNumber" },
+                columns: new[] { "ScheduleId", "SequenceNumber" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -114,9 +114,9 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_Schedules_DoctorID",
+                name: "IX_Schedules_DoctorId",
                 table: "Schedules",
-                column: "DoctorID");
+                column: "DoctorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Schedules_ServiceDate_Shift",
