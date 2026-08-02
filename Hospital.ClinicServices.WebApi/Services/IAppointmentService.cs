@@ -4,7 +4,7 @@ using Hospital.ClinicServices.WebApi.Entities;
 
 namespace Hospital.ClinicServices.WebApi.Services;
 
-interface IAppointmentService
+public interface IAppointmentService
 {
     Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request);
 }

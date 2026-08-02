@@ -18,7 +18,7 @@ public class AppointmentService : IAppointmentService
     public async Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
-
+   
         try
         {
             var schedule = await _context.Schedules
