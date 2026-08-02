@@ -24,11 +24,11 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
             modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Appointment", b =>
                 {
-                    b.Property<int>("AppointmentID")
+                    b.Property<int>("AppointmentId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AppointmentId"));
 
                     b.Property<int>("AppointmentStatus")
                         .HasColumnType("int");
@@ -36,20 +36,20 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PatientID")
+                    b.Property<int>("PatientId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ScheduleID")
+                    b.Property<int>("ScheduleId")
                         .HasColumnType("int");
 
                     b.Property<int>("SequenceNumber")
                         .HasColumnType("int");
 
-                    b.HasKey("AppointmentID");
+                    b.HasKey("AppointmentId");
 
-                    b.HasIndex("PatientID");
+                    b.HasIndex("PatientId");
 
-                    b.HasIndex("ScheduleID", "SequenceNumber")
+                    b.HasIndex("ScheduleId", "SequenceNumber")
                         .IsUnique();
 
                     b.ToTable("Appointments");
@@ -57,11 +57,11 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
             modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Doctor", b =>
                 {
-                    b.Property<int>("DoctorID")
+                    b.Property<int>("DoctorId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
 
                     b.Property<string>("Department")
                         .IsRequired()
@@ -78,7 +78,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.HasKey("DoctorID");
+                    b.HasKey("DoctorId");
 
                     b.ToTable("Doctors");
                 });
@@ -118,22 +118,22 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
             modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Schedule", b =>
                 {
-                    b.Property<int>("ScheduleID")
+                    b.Property<int>("ScheduleId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ScheduleId"));
 
                     b.Property<int>("CurrentCallingNumber")
                         .HasColumnType("int");
 
-                    b.Property<int>("CurrentRegister")
+                    b.Property<int>("CurrentRegisterCount")
                         .HasColumnType("int");
 
-                    b.Property<int>("DoctorID")
+                    b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("MaxQuata")
+                    b.Property<int>("MaxQuota")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("ServiceDate")
@@ -145,9 +145,9 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.HasKey("ScheduleID");
+                    b.HasKey("ScheduleId");
 
-                    b.HasIndex("DoctorID");
+                    b.HasIndex("DoctorId");
 
                     b.HasIndex("ServiceDate", "Shift");
 
@@ -158,13 +158,13 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 {
                     b.HasOne("Hospital.ClinicServices.WebApi.Entities.Patient", "Patient")
                         .WithMany()
-                        .HasForeignKey("PatientID")
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Hospital.ClinicServices.WebApi.Entities.Schedule", "Schedule")
                         .WithMany()
-                        .HasForeignKey("ScheduleID")
+                        .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -177,7 +177,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                 {
                     b.HasOne("Hospital.ClinicServices.WebApi.Entities.Doctor", "Doctor")
                         .WithMany()
-                        .HasForeignKey("DoctorID")
+                        .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

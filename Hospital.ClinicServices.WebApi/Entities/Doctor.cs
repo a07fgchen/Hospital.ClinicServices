@@ -3,11 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Hospital.ClinicServices.WebApi.Entities;
 
+//醫生表
 [Table("Doctors")]
 public class Doctor
 {
     [Key]
-    public int DoctorID { get; set; }
+    public int DoctorId { get; set; }
 
     [Required]
     [MaxLength(50)]
