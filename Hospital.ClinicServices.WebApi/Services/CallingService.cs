@@ -4,7 +4,7 @@ using Hospital.ClinicServices.WebApi.Hubs;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Hospital.ClinicServices.WebApi.Services;
+namespace Hospital.ClinicServices.WebApi.Services.Interfaces;
 
 public class CallingService : ICallingService
 {
@@ -19,7 +19,7 @@ public class CallingService : ICallingService
         _hubContext = hubContext;
     }
 
-    public async Task<Schedule> CallNextPatientAsync(int scheduleId)
+    public async Task<Schedule> CallingNextClinicAsync(int scheduleId)
     {
         var schedule = await _context.Schedules
             .Include(s => s.Doctor)
