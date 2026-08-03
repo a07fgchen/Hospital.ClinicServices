@@ -8,7 +8,7 @@ namespace Hospital.ClinicServices.WebApi.Entities;
 public class Patient
 {
     [Key]
-    public int PatientID {get; set;} //病例號碼
+    public int PatientId {get; set;} //病例號碼
 
     [Required]
     [MaxLength(10)]

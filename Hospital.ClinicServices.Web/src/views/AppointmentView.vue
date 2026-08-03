@@ -104,6 +104,7 @@ async function submitAppointment() {
     const result = await response.json()
 
     if (!response.ok) {
+      console.log(result)
       message.value = result?.detail ?? '掛號失敗'
       return
     }

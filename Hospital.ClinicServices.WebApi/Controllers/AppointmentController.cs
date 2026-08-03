@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 using Hospital.ClinicServices.WebApi.DTOs;
-using Hospital.ClinicServices.WebApi.Services;
+using Hospital.ClinicServices.WebApi.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

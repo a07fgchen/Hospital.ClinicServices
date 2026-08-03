@@ -18,7 +18,7 @@ public class AppointmentService : IAppointmentService
     public async Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request)
     {
         using var transaction = await _context.Database.BeginTransactionAsync();
-   
+
         try
         {
             var schedule = await _context.Schedules
@@ -42,7 +42,11 @@ public class AppointmentService : IAppointmentService
             }
             // 4. 檢查該病人是否已經掛過這一診，避免重複掛號
             bool isAlreadyRegisterd = await _context.Appointments
-            .AnyAsync(a => a.ScheduleId == request.ScheduleId && a.PatientId == request.PatientId && a.AppointmentStatus == 1);
+            .AnyAsync(a =>
+                a.ScheduleId == request.ScheduleId &&
+                a.PatientId == 1 &&
+                a.AppointmentStatus == 1
+            );
 
             if (isAlreadyRegisterd)
             {
@@ -59,7 +63,7 @@ public class AppointmentService : IAppointmentService
             var newAppointment = new Appointment
             {
                 ScheduleId = request.ScheduleId,
-                PatientId = request.PatientId,
+                PatientId = 1,
                 SequenceNumber = sequenceNumber,
                 AppointmentStatus = 1, // 1:預約成功
                 CreatedAt = DateTime.UtcNow
@@ -72,10 +76,15 @@ public class AppointmentService : IAppointmentService
 
             return newAppointment;
         }
-        catch (Exception)
+        catch (Exception exception)
         {
-            // 發生任何錯誤，自動回滾，確保資料庫不會有髒資料
-            await transaction.RollbackAsync();
+            Console.WriteLine($"錯誤訊息: {exception.Message}");
+            Console.WriteLine($"堆疊資訊: {exception.StackTrace}");
+            if (exception.InnerException != null)
+            {
+                Console.WriteLine($"內層例外: {exception.InnerException.Message}");
+            }
+
             throw;
         }
     }
