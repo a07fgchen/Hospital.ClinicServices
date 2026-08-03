@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
-using Hospital.ClinicServices.WebApi.DTOs;
+﻿using Hospital.ClinicServices.WebApi.DTOs;
 using Hospital.ClinicServices.WebApi.Entities;
 
-namespace Hospital.ClinicServices.WebApi.Services;
+namespace Hospital.ClinicServices.WebApi.Services.Interfaces;
 
 public interface IAppointmentService
 {

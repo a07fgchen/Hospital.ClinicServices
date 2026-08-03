@@ -1,7 +1,7 @@
 ﻿using Hospital.ClinicServices.WebApi.Data;
 using Hospital.ClinicServices.WebApi.DTOs;
 using Hospital.ClinicServices.WebApi.Entities;
-using Hospital.ClinicServices.WebApi.Services;
+using Hospital.ClinicServices.WebApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.ClinicServices.WebApi;
