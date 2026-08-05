@@ -26,4 +26,10 @@ public class Patient
     [MaxLength(20)]
     [Column(TypeName = "varchar(20)")]
     public string? PhoneNumber {get; set;} //電話號碼
+
+    public bool IsFirstVisted {get; set;} //是否初診
+
+    public DateTime CreatedAt { get; set; } = DateTime.Now; //建立時間
+
+    public DateTime UpdatedAt { get; set; } = DateTime.Now; //更新時間
 }

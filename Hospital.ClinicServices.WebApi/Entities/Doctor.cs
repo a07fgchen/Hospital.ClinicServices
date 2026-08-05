@@ -15,8 +15,10 @@ public class Doctor
     public string Name { get; set; }  = string.Empty;
 
     [Required]
-    [MaxLength(50)]
-    public string Department {get; set;} = string.Empty; //科別:兒科、內科...
+    public int DepartmentId {get; set;} = 0;
+
+    [ForeignKey("DepartmentId")]
+    public Department? Department { get; set; }
     
     [Required]
     [MaxLength(50)]

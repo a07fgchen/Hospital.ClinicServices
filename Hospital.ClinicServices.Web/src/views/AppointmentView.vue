@@ -1,168 +1,258 @@
 <template>
-  <div class="appointment-page">
-    <h1>預約門診</h1>
+  <main class="appointment-page">
+    <section class="appointment-card">
+      <header class="form-header">
+        <h1>預約掛號</h1>
+        <p>請填寫病患資料，完成後送出預約。</p>
+      </header>
+    </section>
 
-    <div class="card">
-      <h2>選擇醫生</h2>
-      <select v-model="appointmentData.doctor">
-        <option value="">請選擇醫師</option>
-        <option value="醫師A">醫師A</option>
-        <option value="醫師B">醫師B</option>
-      </select>
-    </div>
+    <section class="schedule-summmary">
+      <h2>預約資訊</h2>
+      <p>排班編號: {{ flow.scheduleId }}</p>
+    </section>
 
-    <div class="card">
-      <h2>選擇日期</h2>
-      <input type="date" v-model="appointmentData.date">
-    </div>
+    <form class="appointment-form" @submit.prevent="submitAppointment">
+      <div class="form-group">
+        <label for="national-id">身分證字號</label>
+        <span class="required"> * </span>
+        <input id="national-id" type="text" maxlength="10" autocomplete="off" placeholder="例如 : A123456789">
+        <p v-if="errorMessages.nationalId" class="field-error">
+          {{ errorMessages.nationalId }}
+        </p>
+      </div>
 
-    <div class="card">
-      <h2 class="time-list">選擇時段</h2>
-      <button v-for="time in timeSlots" :key="time" @click="appointmentData.time = time"
-        :class="{ active: appointmentData.time === time }">
-        {{ time }}
-      </button>
-    </div>
+      <div class="form-group">
+        <label for="patient-name">姓名</label>
+        <span class="required"> * </span>
 
-    <div class="card">
-      <h2>填寫資料</h2>
-      <input v-model="appointmentData.patientName" placeholder="請輸入姓名">
-      <input v-model="appointmentData.phone" placeholder="請輸入電話">
-    </div>
+        <input id="patient-name" v-model.trim="form.patientName" autocomplete="name" placeholder="請輸入姓名" type="text" />
+        <p v-if="errorMessages.patientName" class="field-error">
+          {{ errorMessages.patientName }}
+        </p>
+      </div>
 
-    <button class="submit-btn" @click="submitAppointment">送出預約</button>
+      <div class="form-group">
+        <label for="phone-number">手機號碼</label>
+        <span class="required"> * </span>
 
-    <p v-if="message" class="message">{{ message }} </p>
+        <input id="phone-number" v-model.trim="form.phoneNumber" type="tel" maxlength="10" autocomplete="tel"
+          placeholder="例如：0912345678" />
+        <p v-if="errorMessages.phoneNumber" class="field-error">
+          {{ errorMessages.phoneNumber }}
+        </p>
+      </div>
 
-  </div>
+      <div class="form-group">
+        <label for="birth-date">
+          出生日期
+          <span class="required">*</span>
+        </label>
+
+        <input id="birth-date" v-model="form.birthDate" type="date" />
+
+        <p v-if="errorMessages.birthDate" class="field-error">
+          {{ errorMessages.birthDate }}
+        </p>
+
+        <p v-if="submitError" class="submit-error">
+          {{ submitError }}
+        </p>
+
+        <button type="submit" :disabled="isSubmitting">
+          {{ isSubmitting ? '預約處理中…' : '確認預約' }}
+        </button>
+      </div>
+    </form>
+  </main>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { useAppointmentFlowStore } from "@/stores/appointmentFlow";
+import { onMounted, reactive, ref } from "vue";
+import { useRouter } from "vue-router";
 
-const appointmentData = ref({
-  doctor: '',
-  date: '',
-  time: '',
+const router = useRouter();
+const flow = useAppointmentFlowStore();
+const NationalIdPattern = /^[A-Z][12]\d{8}$/;
+const BirthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+const nationalIdPattern = /^[A-Z][12]\d{8}$/
+const phoneNumberPattern = /^09\d{8}$/
+const errorMessages = reactive<FormErrors>({})
+const isSubmitting = ref(false)
+const submitError = ref('')
+
+type AppointmentForm = {
+  nationalId: string;
+  patientName: string;
+  phoneNumber: string;
+  birthDate: string;
+}
+type FormErrors = Partial<Record<keyof AppointmentForm, string>>
+const form = reactive<AppointmentForm>({
+  nationalId: '',
   patientName: '',
-  phone: '',
+  phoneNumber: '',
+  birthDate: '',
 })
 
-const message = ref('')
+function validateForm() {
+  errors.nationalId = ''
+  errors.patientName = ''
+  errors.phoneNumber = ''
+  errors.birthDate = ''
 
-const timeSlots = [
-  '09:00 - 10:00',
-  '10:00 - 11:00',
-  '11:00 - 12:00',
-  '13:00 - 14:00',
-  '14:00 - 15:00',
-  '15:00 - 16:00',
-]
+  const normalizedNationalId = form.nationalId.toUpperCase()
+
+  if (!nationalIdPattern.test(normalizedNationalId)) {
+    errors.nationalId = '請輸入正確的身分證字號'
+  }
+
+  if (!form.patientName) {
+    errors.patientName = '請輸入姓名'
+  }
+
+  if (!phoneNumberPattern.test(form.phoneNumber)) {
+    errors.phoneNumber = '請輸入正確的手機號碼'
+  }
+
+  if (!form.birthDate) {
+    errors.birthDate = '請選擇出生日期'
+  }
+
+  form.nationalId = normalizedNationalId
+
+  return !Object.values(errors).some(Boolean)
+}
 
 async function submitAppointment() {
-  const { doctor, date, time, patientName, phone } = appointmentData.value
+  submitError.value = ''
 
-  if (
-    !doctor ||
-    !date ||
-    !time ||
-    !patientName ||
-    !phone
-  ) {
-    message.value = '請填寫完整資料'
+  if (!validateForm()) {
     return
   }
 
-  const scheduleMap: Record<string, number> = {
-    '醫師A|09:00 - 10:00': 1,
-    '醫師A|10:00 - 11:00': 2,
-    '醫師B|09:00 - 10:00': 3,
-  }
-
-  const key = doctor + '|' + time
-  const scheduleId = scheduleMap[key]
-
-  if (!scheduleId) {
-    message.value = "目前找不到對應排班，請換一個時段"
+  if (!flow.scheduleId) {
+    submitError.value = '找不到預約班表，請重新選擇'
     return
-  }
-
-  const payload = {
-    scheduleId,
-    patientId: 1,
   }
 
   try {
-    const response = await fetch('http://localhost:5076/api/Appointment/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(payload),
-    })
+    isSubmitting.value = true
 
-    const result = await response.json()
+    const response = await fetch(
+      'http://localhost:5076/api/appointment/register',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          scheduleId: flow.scheduleId,
+          nationalId: form.nationalId,
+          patientName: form.patientName,
+          phoneNumber: form.phoneNumber,
+        }),
+      },
+    )
+
+    const responseData = await response.json()
 
     if (!response.ok) {
-      console.log(result)
-      message.value = result?.detail ?? '掛號失敗'
-      return
+      throw new Error(
+        responseData.detail ?? responseData.message ?? '預約失敗',
+      )
     }
 
-    message.value = '掛號成功，號碼：' + result.data.sequenceNumber
+    console.log('預約成功：', responseData.data)
 
+    alert(
+      `預約成功，看診號碼：${responseData.data.sequenceNumber}`,
+    )
   } catch (error) {
-    message.value = '無法連線到伺服器，請稍後再試'
-    return
+    submitError.value =
+      error instanceof Error ? error.message : '預約失敗，請稍後再試'
+  } finally {
+    isSubmitting.value = false
   }
-
 }
+
+onMounted(() => {
+  if (!flow.scheduleId) {
+    router.replace({
+      name: 'schedule',
+    })
+  }
+})
 </script>
 
 <style scoped>
 .appointment-page {
-  max-width: 700px;
-  margin: 40px auto;
-  padding: 20px;
-  font-family: Arial, Helvetica, sans-serif;
+  width: 100%;
+  margin: 0 auto;
+  padding: 32px 20px;
 }
 
-.card {
-  background-color: #f9f9f9;
-  padding: 20px;
-  margin-bottom: 20px;
+.appointment-card {
+  padding: 32px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+}
+
+.form-header {
+  margin-bottom: 24px;
+}
+
+.schedule-summary {
+  padding: 16px;
+  margin-bottom: 24px;
   border-radius: 8px;
+  background: #f5f5f5;
+  color: #222;
 }
 
-.time-list {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+.appointment-form {
+  display: grid;
+  gap: 20px;
 }
 
-button {
-  padding: 8px 12px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.form-group {
+  display: grid;
+  gap: 8px;
+}
+
+.form-group input {
+  padding: 10px 12px;
+  border: 1px solid #aaa;
+  border-radius: 6px;
+  font: inherit;
+}
+
+.form-group input:focus {
+  border-color: #3178c6;
+  outline: 2px solid rgb(49 120 198 / 20%);
+}
+
+.required,
+.field-error,
+.submit-error {
+  color: #d93025;
+}
+
+.field-error {
+  margin: 0;
+  font-size: 14px;
+}
+
+button[type='submit'] {
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
   cursor: pointer;
 }
 
-button.active {
-  background-color: #2563eb;
-  color: white;
-}
-
-.submit-btn {
-  width: 100%;
-  padding: 10px;
-  background-color: #16a34a;
-  color: white;
-  border: none;
-  font-size: 16px;
-}
-
-.message {
-  margin-top: 12px;
-  color: #2563eb;
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 </style>

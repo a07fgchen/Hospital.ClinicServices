@@ -18,15 +18,21 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue'),
     },
     {
+      path: '/department',
+      name: 'department',
+      component: () => import('../views/DepartmentView.vue'),
+    },
+    {
+      path: '/schedule',
+      name: 'schedule',
+      component: () => import('../views/ScheduleView.vue'),
+    },
+    {
       path: '/appointment',
       name: 'appointment',
       component: () => import('../views/AppointmentView.vue'),
     },
-    {
-      path: '/register',
-      name: 'register',
-      component: () => import('../views/RegisterView.vue'),
-    }
+
   ],
 })
 

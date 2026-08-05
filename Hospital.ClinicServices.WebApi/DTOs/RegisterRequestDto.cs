@@ -9,7 +9,7 @@ public class RegisterRequestDto
     public int ScheduleId  { get; set; } //排班序號
 
     [Required]
-    public int NationalId { get; set; } //身分證
+    public string NationalId { get; set; } = string.Empty; //身分證
 
     [Required]
     public string PatientName { get; set; } = string.Empty; //病人姓名

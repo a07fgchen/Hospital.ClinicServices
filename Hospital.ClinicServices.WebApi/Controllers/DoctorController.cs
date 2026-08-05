@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Hospital.ClinicServices.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/doctor")]
 public class DoctorController : ControllerBase
 {
     private readonly ICallingService _callingService;

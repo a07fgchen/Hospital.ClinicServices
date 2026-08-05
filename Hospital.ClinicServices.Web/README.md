@@ -1,54 +1,53 @@
-# .
+﻿# Hospital.ClinicServices 前端專案
 
-This template should help get you started developing with Vue 3 in Vite.
+這是一個以 Vue 3 + TypeScript 建立的醫療掛號系統前端，負責呈現門診、排班、掛號與叫號流程，並與後端 API 串接。
 
-## Recommended IDE Setup
+## 專案目標
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+這個專案的目標是展示一個完整的全端醫療流程雛形，包含：
+- 門診與科別頁面
+- 排班查詢與掛號入口
+- 叫號流程導覽
+- 與後端 API 的資料串接
 
-## Recommended Browser Setup
+## 技術堆疊
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+- Vue 3
+- TypeScript
+- Vue Router
+- Pinia
+- Vite
+- Vitest
 
-## Type Support for `.vue` Imports in TS
+## 本機開發
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
+cd Hospital.ClinicServices.Web
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+## 建置與測試
 
-```sh
+```bash
 npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
 npm run test:unit
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
 npm run lint
 ```
+
+## 專案結構
+
+- src/views：頁面元件
+- src/components：共用 UI 元件
+- src/router：路由設定
+- src/stores：狀態管理
+
+## 面試展示 checklist
+
+- [x] 前端可啟動並成功建置
+- [x] 主要頁面已建立
+- [ ] 主流程從 UI 到 API 能完整跑通
+- [ ] 錯誤提示與載入狀態補齊
+- [ ] 基本單元測試補齊
+- [ ] README 與 demo 內容整理完成
+- [ ] UI 互動與資料流再優化

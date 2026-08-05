@@ -1,6 +1,7 @@
 using Hospital.ClinicServices.WebApi;
 using Hospital.ClinicServices.WebApi.Data;
 using Hospital.ClinicServices.WebApi.Hubs;
+using Hospital.ClinicServices.WebApi.Services;
 using Hospital.ClinicServices.WebApi.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -22,6 +23,8 @@ builder.Services.AddCors(options =>
 // Scoped 意思為每次請求都會建立一個新的實例，並在請求結束釋放該實例。
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<IScheduleService, ScheduleService>();
 //加入 SignalR 服務
 builder.Services.AddSignalR();
 
@@ -40,6 +43,7 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
+    await ClinicDataSeeder.SeedAllAsync(app.Services);
 }
 
 app.UseHttpsRedirection();

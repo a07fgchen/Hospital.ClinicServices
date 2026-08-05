@@ -49,10 +49,68 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.HasIndex("ScheduleId", "SequenceNumber")
-                        .IsUnique();
+                    b.HasIndex("ScheduleId");
 
                     b.ToTable("Appointments");
+                });
+
+            modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Department", b =>
+                {
+                    b.Property<int>("DepartmentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DepartmentId"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("DepartmentId");
+
+                    b.ToTable("Departments");
+
+                    b.HasData(
+                        new
+                        {
+                            DepartmentId = 1,
+                            Name = "內科"
+                        },
+                        new
+                        {
+                            DepartmentId = 2,
+                            Name = "外科"
+                        },
+                        new
+                        {
+                            DepartmentId = 3,
+                            Name = "婦產科"
+                        },
+                        new
+                        {
+                            DepartmentId = 4,
+                            Name = "小兒科"
+                        },
+                        new
+                        {
+                            DepartmentId = 5,
+                            Name = "耳鼻喉科"
+                        },
+                        new
+                        {
+                            DepartmentId = 6,
+                            Name = "眼科"
+                        },
+                        new
+                        {
+                            DepartmentId = 7,
+                            Name = "皮膚科"
+                        },
+                        new
+                        {
+                            DepartmentId = 8,
+                            Name = "牙科"
+                        });
                 });
 
             modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Doctor", b =>
@@ -63,10 +121,8 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("DoctorId"));
 
-                    b.Property<string>("Department")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -80,19 +136,27 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
                     b.HasKey("DoctorId");
 
+                    b.HasIndex("DepartmentId");
+
                     b.ToTable("Doctors");
                 });
 
             modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Patient", b =>
                 {
-                    b.Property<int>("PatientID")
+                    b.Property<int>("PatientId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientID"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PatientId"));
 
                     b.Property<DateTime>("BirthDate")
                         .HasColumnType("date");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsFirstVisted")
+                        .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -108,7 +172,10 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.HasKey("PatientID");
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("PatientId");
 
                     b.HasIndex("NationalId")
                         .IsUnique();
@@ -130,6 +197,9 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.Property<int>("CurrentRegisterCount")
                         .HasColumnType("int");
 
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("DoctorId")
                         .HasColumnType("int");
 
@@ -147,9 +217,9 @@ namespace Hospital.ClinicServices.WebApi.Migrations
 
                     b.HasKey("ScheduleId");
 
-                    b.HasIndex("DoctorId");
+                    b.HasIndex("DepartmentId");
 
-                    b.HasIndex("ServiceDate", "Shift");
+                    b.HasIndex("DoctorId");
 
                     b.ToTable("Schedules");
                 });
@@ -159,13 +229,13 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.HasOne("Hospital.ClinicServices.WebApi.Entities.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Hospital.ClinicServices.WebApi.Entities.Schedule", "Schedule")
                         .WithMany()
                         .HasForeignKey("ScheduleId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Patient");
@@ -173,13 +243,32 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.Navigation("Schedule");
                 });
 
+            modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Doctor", b =>
+                {
+                    b.HasOne("Hospital.ClinicServices.WebApi.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Department");
+                });
+
             modelBuilder.Entity("Hospital.ClinicServices.WebApi.Entities.Schedule", b =>
                 {
+                    b.HasOne("Hospital.ClinicServices.WebApi.Entities.Department", "Department")
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Hospital.ClinicServices.WebApi.Entities.Doctor", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Department");
 
                     b.Navigation("Doctor");
                 });

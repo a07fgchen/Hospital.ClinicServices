@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.ClinicServices.WebApi.Entities;
 
@@ -15,6 +16,12 @@ public class Schedule
 
     [ForeignKey("DoctorId")]
     virtual public Doctor? Doctor { get; set; }
+
+    [Required]
+    public int DepartmentId { get; set; }
+
+    [ForeignKey("DepartmentId")]
+    virtual public Department? Department { get; set; }
 
     [Required]
     [Column(TypeName = "date")]

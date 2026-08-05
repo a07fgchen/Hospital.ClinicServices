@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Hospital.ClinicServices.WebApi.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/appointment")]
 public class AppointmentController : ControllerBase
 {
     private readonly IAppointmentService _appointmentService;
