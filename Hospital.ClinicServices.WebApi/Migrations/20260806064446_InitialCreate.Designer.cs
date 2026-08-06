@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Hospital.ClinicServices.WebApi.Migrations
 {
     [DbContext(typeof(ClinicDbContext))]
-    [Migration("20260805030405_InitialDatabase")]
-    partial class InitialDatabase
+    [Migration("20260806064446_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -158,7 +158,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsFirstVisted")
+                    b.Property<bool>("IsFirstVisited")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")

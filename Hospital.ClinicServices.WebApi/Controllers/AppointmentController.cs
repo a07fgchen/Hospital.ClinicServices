@@ -1,7 +1,5 @@
-using System.Threading.Tasks;
 using Hospital.ClinicServices.WebApi.DTOs;
 using Hospital.ClinicServices.WebApi.Services.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Hospital.ClinicServices.WebApi.Controllers;
@@ -17,6 +15,16 @@ public class AppointmentController : ControllerBase
         _appointmentService = appointmentService;
     }
 
+    [HttpPost("register-first-visit")]
+    public async Task<IActionResult> RegisterFirstVisitAsync([FromBody] FirstVisitRegisterRequestDto request)
+    {
+
+        var result = await _appointmentService.RegisterFirstVisitAsync(request);
+
+        return CreateRegistrationResponse(result);
+
+    }
+
     //民眾掛號API 
     [HttpPost("register")]
     [Consumes("application/json")]
@@ -26,31 +34,24 @@ public class AppointmentController : ControllerBase
     [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
-        try
-        {
-            var result = await _appointmentService.RegisterAppointmentAsync(request);
 
-            return Created(string.Empty, new
-            {
-                success = true,
-                data = new
-                {
-                    appointmentId = result.AppointmentId,
-                    sequenceNumber = result.SequenceNumber,
-                    createdAt = result.CreatedAt,
-                    message = "掛號成功",
-                    status = "已預約"
-                }
-            });
-        }
-        catch (Exception exception)
+        var result = await _appointmentService.RegisterAppointmentAsync(request);
+        return CreateRegistrationResponse(result);
+    }
+
+    private CreatedResult CreateRegistrationResponse(Entities.Appointment result)
+    {
+        return Created(string.Empty, new
         {
-            return BadRequest(new ProblemDetails
+            success = true,
+            data = new
             {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "掛號失敗",
-                Detail = exception.Message
-            });
-        }
+                appointmentId = result.AppointmentId,
+                sequenceNumber = result.SequenceNumber,
+                createdAt = result.CreatedAt,
+                message = "掛號成功",
+                status = "已預約"
+            }
+        });
     }
 }

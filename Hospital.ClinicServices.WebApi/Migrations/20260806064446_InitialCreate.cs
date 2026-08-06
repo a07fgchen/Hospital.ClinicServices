@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Hospital.ClinicServices.WebApi.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDatabase : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,7 +36,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     Name = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     BirthDate = table.Column<DateTime>(type: "date", nullable: false),
                     PhoneNumber = table.Column<string>(type: "varchar(20)", maxLength: 20, nullable: true),
-                    IsFirstVisted = table.Column<bool>(type: "bit", nullable: false),
+                    IsFirstVisited = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },

@@ -16,7 +16,8 @@
       <div class="form-group">
         <label for="national-id">身分證字號</label>
         <span class="required"> * </span>
-        <input id="national-id" type="text" maxlength="10" autocomplete="off" placeholder="例如 : A123456789">
+        <input id="national-id" v-model.trim="form.nationalId" type="text" maxlength="10" autocomplete="off"
+          placeholder="例如 : A123456789">
         <p v-if="errorMessages.nationalId" class="field-error">
           {{ errorMessages.nationalId }}
         </p>
@@ -74,8 +75,6 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const flow = useAppointmentFlowStore();
-const NationalIdPattern = /^[A-Z][12]\d{8}$/;
-const BirthDatePattern = /^\d{4}-\d{2}-\d{2}$/;
 const nationalIdPattern = /^[A-Z][12]\d{8}$/
 const phoneNumberPattern = /^09\d{8}$/
 const errorMessages = reactive<FormErrors>({})
@@ -97,32 +96,32 @@ const form = reactive<AppointmentForm>({
 })
 
 function validateForm() {
-  errors.nationalId = ''
-  errors.patientName = ''
-  errors.phoneNumber = ''
-  errors.birthDate = ''
+  errorMessages.nationalId = ''
+  errorMessages.patientName = ''
+  errorMessages.phoneNumber = ''
+  errorMessages.birthDate = ''
 
   const normalizedNationalId = form.nationalId.toUpperCase()
 
   if (!nationalIdPattern.test(normalizedNationalId)) {
-    errors.nationalId = '請輸入正確的身分證字號'
+    errorMessages.nationalId = '請輸入正確的身分證字號'
   }
 
   if (!form.patientName) {
-    errors.patientName = '請輸入姓名'
+    errorMessages.patientName = '請輸入姓名'
   }
 
   if (!phoneNumberPattern.test(form.phoneNumber)) {
-    errors.phoneNumber = '請輸入正確的手機號碼'
+    errorMessages.phoneNumber = '請輸入正確的手機號碼'
   }
 
   if (!form.birthDate) {
-    errors.birthDate = '請選擇出生日期'
+    errorMessages.birthDate = '請選擇出生日期'
   }
 
   form.nationalId = normalizedNationalId
 
-  return !Object.values(errors).some(Boolean)
+  return !Object.values(errorMessages).some(Boolean)
 }
 
 async function submitAppointment() {
@@ -141,7 +140,7 @@ async function submitAppointment() {
     isSubmitting.value = true
 
     const response = await fetch(
-      'http://localhost:5076/api/appointment/register',
+      'http://localhost:5076/api/appointment/register-first-visit',
       {
         method: 'POST',
         headers: {
@@ -152,6 +151,7 @@ async function submitAppointment() {
           nationalId: form.nationalId,
           patientName: form.patientName,
           phoneNumber: form.phoneNumber,
+          birthDate: form.birthDate,
         }),
       },
     )

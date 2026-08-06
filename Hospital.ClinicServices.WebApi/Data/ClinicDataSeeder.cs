@@ -100,7 +100,7 @@ public static class ClinicDataSeeder
             .RuleFor(p => p.Name, f => f.Name.FullName())
             .RuleFor(p => p.PhoneNumber, f => f.Phone.PhoneNumber("09########"))
             .RuleFor(p => p.BirthDate, f => f.Date.Between(DateTime.Today.AddYears(-90), DateTime.Today.AddYears(-1)))
-            .RuleFor(p => p.IsFirstVisted, f => f.Random.Bool())
+            .RuleFor(p => p.IsFirstVisited, f => f.Random.Bool())
             .RuleFor(p => p.CreatedAt, _ => DateTime.Now)
             .RuleFor(p => p.UpdatedAt, _ => DateTime.Now);
         var patients = faker.Generate(count);

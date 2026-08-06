@@ -8,6 +8,7 @@ namespace Hospital.ClinicServices.WebApi;
 
 public class AppointmentService : IAppointmentService
 {
+    private const int RegisteredStatus = 0;
     private readonly ClinicDbContext _context;
 
     public AppointmentService(ClinicDbContext context)
@@ -15,77 +16,125 @@ public class AppointmentService : IAppointmentService
         _context = context;
     }
 
-    public async Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request)
+    public async Task<Appointment> RegisterFirstVisitAsync(FirstVisitRegisterRequestDto request)
     {
-        using var transaction = await _context.Database.BeginTransactionAsync();
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
-            var schedule = await _context.Schedules
-            //相當於Mysql的SELECT ... FOR UPDATE，鎖定該筆排班資料，避免同時有多個使用者搶同一個排班
-            .FromSqlRaw("SELECT * FROM Schedules WITH (UPDLOCK, ROWLOCK) WHERE ScheduleId = {0}", request.ScheduleId)
-            .FirstOrDefaultAsync();
+            var normalizedNationalId = request.NationalId.Trim().ToUpperInvariant();
+            var patientExists = await _context.Patients
+                .AnyAsync(patient => patient.NationalId == normalizedNationalId);
 
-            if (schedule == null)
+            if (patientExists)
             {
-                throw new Exception("找不到該門診排班資訊。");
+                throw new InvalidOperationException("該病人已填寫過初診資料，請勿重複填寫。");
             }
 
-            if (schedule.Status == 2 || schedule.Status == 3)
-            {
-                throw new Exception("該門診已休診或已結束，無法掛號。");
-            }
+            var schedule = await GetScheduleForUpdateAsync(request.ScheduleId);
 
-            if (schedule.CurrentRegisterCount >= schedule.MaxQuota)
-            {
-                throw new Exception("非常抱歉，該門診預約名額已滿。");
-            }
-            // 4. 檢查該病人是否已經掛過這一診，避免重複掛號
-            bool isAlreadyRegisterd = await _context.Appointments
-            .AnyAsync(a =>
-                a.ScheduleId == request.ScheduleId &&
-                a.PatientId == 1 &&
-                a.AppointmentStatus == 1
-            );
+            EnsureScheduleIsAvailable(schedule);
 
-            if (isAlreadyRegisterd)
+            var newPatient = new Patient
             {
-                throw new Exception("您已預約過此門診，請勿重複掛號。");
-            }
-
-            // 5. 計算看診號碼：目前的已掛號人數 + 1
-            int sequenceNumber = schedule.CurrentRegisterCount + 1;
-            // 6. 更新排班表上的已掛號人數
-            schedule.CurrentRegisterCount = sequenceNumber;
-            _context.Schedules.Update(schedule);
-
-            // 7. 新增掛號紀錄
-            var newAppointment = new Appointment
-            {
-                ScheduleId = request.ScheduleId,
-                PatientId = 1,
-                SequenceNumber = sequenceNumber,
-                AppointmentStatus = 1, // 1:預約成功
-                CreatedAt = DateTime.UtcNow
+                NationalId = normalizedNationalId,
+                Name = request.PatientName.Trim(),
+                PhoneNumber = request.PhoneNumber.Trim(),
+                BirthDate = request.BirthDate,
+                IsFirstVisited = true,
             };
-            await _context.Appointments.AddAsync(newAppointment);
 
-            // 8. 儲存變更
+            _context.Patients.Add(newPatient);
             await _context.SaveChangesAsync();
+
+            var appointment = await CreateAppointmentAsync(schedule, newPatient.PatientId);
             await transaction.CommitAsync();
 
-            return newAppointment;
+            return appointment;
         }
-        catch (Exception exception)
+        catch
         {
-            Console.WriteLine($"錯誤訊息: {exception.Message}");
-            Console.WriteLine($"堆疊資訊: {exception.StackTrace}");
-            if (exception.InnerException != null)
-            {
-                Console.WriteLine($"內層例外: {exception.InnerException.Message}");
-            }
-
+            await transaction.RollbackAsync();
             throw;
         }
+    }
+
+
+    public async Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request)
+    {
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            var normalizedNationalId = request.NationalId.Trim().ToUpperInvariant();
+            var patient = await _context.Patients
+                .SingleOrDefaultAsync(patient => patient.NationalId == normalizedNationalId)
+                ?? throw new InvalidOperationException("找不到病患資料，請使用初診掛號。");
+
+            var schedule = await GetScheduleForUpdateAsync(request.ScheduleId);
+
+            EnsureScheduleIsAvailable(schedule);
+
+            var appointment = await CreateAppointmentAsync(schedule, patient.PatientId);
+            await transaction.CommitAsync();
+
+            return appointment;
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+    }
+
+    private async Task<Appointment> CreateAppointmentAsync(Schedule schedule, int patientId)
+    {
+        var isAlreadyRegistered = await _context.Appointments.AnyAsync(appointment =>
+            appointment.ScheduleId == schedule.ScheduleId &&
+            appointment.PatientId == patientId &&
+            appointment.AppointmentStatus == RegisteredStatus);
+
+        if (isAlreadyRegistered)
+        {
+            throw new InvalidOperationException("您已預約過此門診，請勿重複掛號。");
+        }
+
+        var sequenceNumber = schedule.CurrentRegisterCount + 1;
+        schedule.CurrentRegisterCount = sequenceNumber;
+
+        var appointment = new Appointment
+        {
+            ScheduleId = schedule.ScheduleId,
+            PatientId = patientId,
+            SequenceNumber = sequenceNumber,
+            AppointmentStatus = RegisteredStatus,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Appointments.Add(appointment);
+        await _context.SaveChangesAsync();
+
+        return appointment;
+    }
+
+    private static void EnsureScheduleIsAvailable(Schedule schedule)
+    {
+        if (schedule.Status == 2 || schedule.Status == 3)
+        {
+            throw new InvalidOperationException("該門診已休診或已結束，無法掛號。");
+        }
+
+        if (schedule.CurrentRegisterCount >= schedule.MaxQuota)
+        {
+            throw new InvalidOperationException("非常抱歉，該門診預約名額已滿。");
+        }
+    }
+
+    private async Task<Schedule> GetScheduleForUpdateAsync(int scheduleId)
+    {
+        return await _context.Schedules
+            //相當於Mysql的SELECT ... FOR UPDATE，鎖定該筆排班資料，避免同時有多個使用者搶同一個排班
+            .FromSqlRaw("SELECT * FROM Schedules WITH (UPDLOCK, ROWLOCK) WHERE ScheduleId = {0}", scheduleId)
+            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("找不到該門診排班資訊。");
     }
 }

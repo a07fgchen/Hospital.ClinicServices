@@ -1,5 +1,6 @@
 using Hospital.ClinicServices.WebApi;
 using Hospital.ClinicServices.WebApi.Data;
+using Hospital.ClinicServices.WebApi.ExceptionHandlers;
 using Hospital.ClinicServices.WebApi.Hubs;
 using Hospital.ClinicServices.WebApi.Services;
 using Hospital.ClinicServices.WebApi.Services.Interfaces;
@@ -34,6 +35,8 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 var app = builder.Build();
 
@@ -47,6 +50,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseExceptionHandler();
 
 app.UseCors("Frontend");
 

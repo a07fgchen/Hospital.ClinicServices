@@ -155,7 +155,7 @@ namespace Hospital.ClinicServices.WebApi.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsFirstVisted")
+                    b.Property<bool>("IsFirstVisited")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
