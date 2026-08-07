@@ -14,33 +14,29 @@
 
     <form class="appointment-form" @submit.prevent="submitAppointment">
       <div class="form-group">
-        <label for="national-id">身分證字號</label>
-        <span class="required"> * </span>
+        <label>掛號身分
+          <span class="required"> * </span>
+        </label>
+        <div>
+          <input type="radio" v-model="form.visitType" value="first">
+          <span>初診</span>
+        </div>
+        <div>
+          <input type="radio" v-model="form.visitType" value="returning">
+          <span>複診 </span>
+        </div>
+        <p v-if="errorMessages.nationalId" class="field-error">
+          {{ errorMessages.visitType }}
+        </p>
+      </div>
+      <div class="form-group">
+        <label for="national-id">身分證字號
+          <span class="required"> * </span>
+        </label>
         <input id="national-id" v-model.trim="form.nationalId" type="text" maxlength="10" autocomplete="off"
           placeholder="例如 : A123456789">
         <p v-if="errorMessages.nationalId" class="field-error">
           {{ errorMessages.nationalId }}
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label for="patient-name">姓名</label>
-        <span class="required"> * </span>
-
-        <input id="patient-name" v-model.trim="form.patientName" autocomplete="name" placeholder="請輸入姓名" type="text" />
-        <p v-if="errorMessages.patientName" class="field-error">
-          {{ errorMessages.patientName }}
-        </p>
-      </div>
-
-      <div class="form-group">
-        <label for="phone-number">手機號碼</label>
-        <span class="required"> * </span>
-
-        <input id="phone-number" v-model.trim="form.phoneNumber" type="tel" maxlength="10" autocomplete="tel"
-          placeholder="例如：0912345678" />
-        <p v-if="errorMessages.phoneNumber" class="field-error">
-          {{ errorMessages.phoneNumber }}
         </p>
       </div>
 
@@ -55,7 +51,35 @@
         <p v-if="errorMessages.birthDate" class="field-error">
           {{ errorMessages.birthDate }}
         </p>
+      </div>
 
+      <div v-if="form.visitType === 'first'">
+        <div class="form-group">
+          <label for="patient-name">姓名
+            <span class="required"> * </span>
+          </label>
+
+          <input id="patient-name" v-model.trim="form.patientName" autocomplete="name" placeholder="請輸入姓名"
+            type="text" />
+          <p v-if="errorMessages.patientName" class="field-error">
+            {{ errorMessages.patientName }}
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="phone-number">手機號碼
+            <span class="required"> * </span>
+          </label>
+
+          <input id="phone-number" v-model.trim="form.phoneNumber" type="tel" maxlength="10" autocomplete="tel"
+            placeholder="例如：0912345678" />
+          <p v-if="errorMessages.phoneNumber" class="field-error">
+            {{ errorMessages.phoneNumber }}
+          </p>
+        </div>
+      </div>
+
+      <div class="form-group">
         <p v-if="submitError" class="submit-error">
           {{ submitError }}
         </p>
@@ -83,16 +107,19 @@ const submitError = ref('')
 
 type AppointmentForm = {
   nationalId: string;
-  patientName: string;
-  phoneNumber: string;
-  birthDate: string;
+  patientName: string | '';
+  phoneNumber: string | '';
+  birthDate: string | '';
+  visitType: 'first' | 'returning';
 }
+
 type FormErrors = Partial<Record<keyof AppointmentForm, string>>
 const form = reactive<AppointmentForm>({
   nationalId: '',
   patientName: '',
   phoneNumber: '',
   birthDate: '',
+  visitType: 'first'
 })
 
 function validateForm() {
@@ -107,16 +134,18 @@ function validateForm() {
     errorMessages.nationalId = '請輸入正確的身分證字號'
   }
 
-  if (!form.patientName) {
-    errorMessages.patientName = '請輸入姓名'
-  }
-
-  if (!phoneNumberPattern.test(form.phoneNumber)) {
-    errorMessages.phoneNumber = '請輸入正確的手機號碼'
-  }
-
   if (!form.birthDate) {
     errorMessages.birthDate = '請選擇出生日期'
+  }
+
+  if (form.visitType === 'first') {
+    if (!form.patientName) {
+      errorMessages.patientName = '請輸入姓名'
+    }
+
+    if (!phoneNumberPattern.test(form.phoneNumber)) {
+      errorMessages.phoneNumber = '請輸入正確的手機號碼'
+    }
   }
 
   form.nationalId = normalizedNationalId
@@ -138,21 +167,33 @@ async function submitAppointment() {
 
   try {
     isSubmitting.value = true
+    const isFirstVisit = form.visitType === 'first'
+    const endpoint = isFirstVisit
+      ? '/api/appointment/register-first-visit'
+      : '/api/appointment/register'
+
+    const requestBody = isFirstVisit
+      ? {
+        scheduleId: flow.scheduleId,
+        nationalId: form.nationalId,
+        patientName: form.patientName,
+        phoneNumber: form.phoneNumber,
+        birthDate: form.birthDate,
+      } :
+      {
+        scheduleId: flow.scheduleId,
+        nationalId: form.nationalId,
+        birthDate: form.birthDate,
+      }
 
     const response = await fetch(
-      'http://localhost:5076/api/appointment/register-first-visit',
+      endpoint,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          scheduleId: flow.scheduleId,
-          nationalId: form.nationalId,
-          patientName: form.patientName,
-          phoneNumber: form.phoneNumber,
-          birthDate: form.birthDate,
-        }),
+        body: JSON.stringify(requestBody),
       },
     )
 
@@ -160,7 +201,9 @@ async function submitAppointment() {
 
     if (!response.ok) {
       throw new Error(
-        responseData.detail ?? responseData.message ?? '預約失敗',
+        responseData.detail ??
+        responseData.message ??
+        '預約失敗'
       )
     }
 
@@ -178,11 +221,11 @@ async function submitAppointment() {
 }
 
 onMounted(() => {
-  if (!flow.scheduleId) {
-    router.replace({
-      name: 'schedule',
-    })
-  }
+  // if (!flow.scheduleId) {
+  //   router.replace({
+  //     name: 'schedule',
+  //   })
+  // }
 })
 </script>
 

@@ -21,15 +21,21 @@ public class ScheduleService : IScheduleService
         )
     {
         var today = DateTime.Today;
+        if( weekOffset is not 0 )
+        {
+            today = today.AddDays(7);            
+        }
         var diff = ((int)today.DayOfWeek + 6) % 7;
 
         var startOfWeek = today.AddDays(-diff); // 這週一
-        var endOfWeek = startOfWeek.AddDays(6); // 這週日
+        var endOfWeek = startOfWeek.AddDays(7); // 這下周一
 
         var query = _dbContext.Schedules
             .Where(s => s.DepartmentId == depertmentId)
-            .Where(s => s.ServiceDate >= startOfWeek);
-
+            .Where(s => 
+                s.ServiceDate >= startOfWeek &&
+                s.ServiceDate < endOfWeek
+            );
         if( shift is 1 and <= 3 )
         {
             query = query.Where(s=>s.Shift == shift);

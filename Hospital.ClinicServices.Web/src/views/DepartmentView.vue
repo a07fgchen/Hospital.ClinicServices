@@ -6,7 +6,7 @@
     <div class="card" v-for="department in departments" :key="department.departmentId">
       <h2 @click="() => {
         flow.setDepartment(department.departmentId);
-        router.push({name: 'schedule', params: { departmentId: department.departmentId }})
+        router.push({name: 'schedule'})
       }">
         {{ department.name }}
       </h2>

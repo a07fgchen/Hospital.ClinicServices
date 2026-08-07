@@ -18,29 +18,18 @@ public class ScheduleController : ControllerBase
 
     [HttpGet("{depertmentId:int}")]
     public async Task<IActionResult> GetSchedulesAsync(
-        [FromRoute] int depertmentId,
-        [FromQuery] int weekOffset = 0,
-        [FromQuery] int shift = 0
+        ScheduleRequestDto request
     )
     {
-        try
-        {
-            var schedule = await _scheduleService.GetSchedulesAsync(depertmentId, weekOffset, shift);
+        var schedule = await _scheduleService.GetSchedulesAsync(
+            request.DepertmentId,
+            request.WeekOffset,
+            request.Shift
+        );
 
-            return Ok(new
-            {
-                data = schedule
-            });
-        }
-        catch (Exception exception)
+        return Ok(new
         {
-
-            return BadRequest(new
-            {
-                message = exception.Message
-            });
-        }
+            data = schedule
+        });
     }
-
-
 }

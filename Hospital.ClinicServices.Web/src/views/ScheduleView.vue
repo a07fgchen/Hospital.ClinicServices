@@ -30,12 +30,8 @@
             <td> {{ shift.label }} </td>
             <td v-for="(day, dayIndex) in weekDays">
               <button v-for="schedule in getDoctorsByShiftAndDay(shift.value, dayIndex)" :key="schedule.scheduleId"
-                role="button"
-                tabindex="0"
-                @click="goToAppointment(schedule)"
-                @keydown.enter="goToAppointment(schedule)"
-                @keydown.space.prevent="goToAppointment(schedule)"
-                class="doctor-card">
+                role="button" tabindex="0" @click="goToAppointment(schedule)" @keydown.enter="goToAppointment(schedule)"
+                @keydown.space.prevent="goToAppointment(schedule)" class="doctor-card">
                 {{ schedule.doctor.name }}
                 掛號人數: {{ schedule.currentRegisterCount }}/{{ schedule.maxQuota }}
               </button>
@@ -48,7 +44,7 @@
 </template>
 <script setup lang="ts">
 import { useAppointmentFlowStore } from "@/stores/appointmentFlow"
-import { onMounted, ref, computed } from "vue"
+import { onMounted, ref, watch } from "vue"
 import { useRouter } from "vue-router"
 
 type Schedule = {
@@ -87,24 +83,30 @@ const weekDays = ['日', '一', '二', '三', '四', '五', '六']
 const router = useRouter()
 const flow = useAppointmentFlowStore()
 
-const weekOffset = selectedRange.value === "nextWeek" ? 1 : 0
-const query = new URLSearchParams({
-  weekOffset: String(weekOffset),
-  shift: String(selectedShift.value)
-})
-
 async function fetchSchedules() {
+  loading.value = true
+  errorMessage.value = ""
+
+  const weekOffset = selectedRange.value === "nextWeek" ? 1 : 0
+  const query = new URLSearchParams({
+    weekOffset: String(weekOffset),
+    shift: String(selectedShift.value)
+  })
   try {
     const response = await fetch(`http://localhost:5076/api/schedule/${flow.departmentId}?${query.toString()}`)
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
+
     const responseJson = await response.json()
-    console.log("Fetched schedules:", responseJson.data)
     schedules.value = responseJson.data
   } catch (error) {
-    errorMessage.value = "讀取排班資料失敗"
-    console.error(error)
+    errorMessage.value = error instanceof Error
+      ? error.message :
+      '讀取門診列表資料失敗'
+  } finally {
+    loading.value = false
   }
 }
 
@@ -124,10 +126,14 @@ function getDoctorsByShiftAndDay(shiftValue: number, dayIndex: number) {
     return s.shift === shiftValue && date.getDay() === dayIndex
   })
 }
-
+watch(
+  [selectedRange, selectedShift],
+  fetchSchedules,
+)
 onMounted(() => {
   if (!flow.departmentId) {
     router.replace('/department')
+    return
   }
 
   fetchSchedules()
