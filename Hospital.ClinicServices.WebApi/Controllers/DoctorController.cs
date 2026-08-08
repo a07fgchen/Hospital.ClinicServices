@@ -19,18 +19,13 @@ public class DoctorController : ControllerBase
     [HttpPost("{scheduleId}/next")]
     public async Task<IActionResult> CallNext(int scheduleId)
     {
-        try
+        var updatedSchedule = await _callingService.CallingNextClinicAsync(scheduleId);
+        
+        return Ok(new
         {
-            var updatedSchedule = await _callingService.CallingNextClinicAsync(scheduleId);
-            return Ok(new
-            {
-                updatedSchedule.CurrentCallingNumber,
-                Message = "成功叫號下一位病人"
-            });
-        }
-        catch (Exception exception)
-        {
-            return BadRequest(new { ErrorMessage = exception.Message });
-        }
+            updatedSchedule.CurrentCallingNumber,
+            Message = "成功叫號下一位病人"
+        });
+
     }
 }

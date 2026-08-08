@@ -1,18 +1,39 @@
 <template>
   <main class="appointment-page">
+    <button v-if="!appointmentResult" type="button" class="secondary-button back-button" @click="goBackToSchedule">
+      ← 上一步：選擇時段
+    </button>
+
     <section class="appointment-card">
       <header class="form-header">
+        <span class="step-label">步驟 3 / 3</span>
         <h1>預約掛號</h1>
         <p>請填寫病患資料，完成後送出預約。</p>
       </header>
     </section>
 
-    <section class="schedule-summmary">
+    <section v-if="!appointmentResult" class="schedule-summary">
       <h2>預約資訊</h2>
       <p>排班編號: {{ flow.scheduleId }}</p>
     </section>
 
-    <form class="appointment-form" @submit.prevent="submitAppointment">
+    <section v-if="appointmentResult" class="success-card">
+      <h1> {{ appointmentResult.message }} </h1>
+
+      <p class="sequence-number">
+        看診號碼: {{ appointmentResult.sequenceNumber }}
+      </p>
+
+      <p>
+        掛號編號: {{ appointmentResult.appointmentId }}
+      </p>
+
+      <button type="button" class="primary-button" @click="goBackToDepartment">
+        返回門診掛號
+      </button>
+    </section>
+
+    <form class="appointment-form" v-if="!appointmentResult" @submit.prevent="submitAppointment">
       <div class="form-group">
         <label>掛號身分
           <span class="required"> * </span>
@@ -25,9 +46,6 @@
           <input type="radio" v-model="form.visitType" value="returning">
           <span>複診 </span>
         </div>
-        <p v-if="errorMessages.nationalId" class="field-error">
-          {{ errorMessages.visitType }}
-        </p>
       </div>
       <div class="form-group">
         <label for="national-id">身分證字號
@@ -53,7 +71,7 @@
         </p>
       </div>
 
-      <div v-if="form.visitType === 'first'">
+      <template v-if="form.visitType === 'first'">
         <div class="form-group">
           <label for="patient-name">姓名
             <span class="required"> * </span>
@@ -77,14 +95,14 @@
             {{ errorMessages.phoneNumber }}
           </p>
         </div>
-      </div>
+      </template>
 
       <div class="form-group">
         <p v-if="submitError" class="submit-error">
           {{ submitError }}
         </p>
 
-        <button type="submit" :disabled="isSubmitting">
+        <button type="submit" class="primary-button" :disabled="isSubmitting">
           {{ isSubmitting ? '預約處理中…' : '確認預約' }}
         </button>
       </div>
@@ -99,6 +117,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const flow = useAppointmentFlowStore();
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 const nationalIdPattern = /^[A-Z][12]\d{8}$/
 const phoneNumberPattern = /^09\d{8}$/
 const errorMessages = reactive<FormErrors>({})
@@ -113,7 +132,18 @@ type AppointmentForm = {
   visitType: 'first' | 'returning';
 }
 
+type AppointmentResult = {
+  appointmentId: number;
+  sequenceNumber: number;
+  createAt: string;
+  message: string;
+  status: string;
+}
+
 type FormErrors = Partial<Record<keyof AppointmentForm, string>>
+
+const appointmentResult = ref<AppointmentResult | null>(null)
+
 const form = reactive<AppointmentForm>({
   nationalId: '',
   patientName: '',
@@ -169,8 +199,8 @@ async function submitAppointment() {
     isSubmitting.value = true
     const isFirstVisit = form.visitType === 'first'
     const endpoint = isFirstVisit
-      ? '/api/appointment/register-first-visit'
-      : '/api/appointment/register'
+      ? `${apiBaseUrl}/api/appointment/register-first-visit`
+      : `${apiBaseUrl}/api/appointment/register`
 
     const requestBody = isFirstVisit
       ? {
@@ -206,12 +236,12 @@ async function submitAppointment() {
         '預約失敗'
       )
     }
+    if (!responseData.data || !responseData.data.appointmentId) {
+      throw new Error('掛號成功，但無法取得掛號結果')
+    }
 
-    console.log('預約成功：', responseData.data)
+    appointmentResult.value = responseData.data
 
-    alert(
-      `預約成功，看診號碼：${responseData.data.sequenceNumber}`,
-    )
   } catch (error) {
     submitError.value =
       error instanceof Error ? error.message : '預約失敗，請稍後再試'
@@ -220,55 +250,125 @@ async function submitAppointment() {
   }
 }
 
+function goBackToDepartment() {
+  flow.resetFlow()
+  router.push({ name: 'department' })
+}
+
+function goBackToSchedule() {
+  router.push({ name: 'schedule' })
+}
+
 onMounted(() => {
-  // if (!flow.scheduleId) {
-  //   router.replace({
-  //     name: 'schedule',
-  //   })
-  // }
+  if (!flow.scheduleId) {
+    router.replace({
+      name: 'schedule',
+    })
+  }
 })
+
 </script>
 
 <style scoped>
+.success-card {
+  display: grid;
+  gap: 16px;
+  padding: 32px;
+  color: #166534;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.success-card h1 {
+  color: #2e7d32;
+}
+
+.sequence-number {
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.success-card button {
+  padding: 12px 20px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
 .appointment-page {
-  width: 100%;
+  width: min(760px, 100%);
   margin: 0 auto;
-  padding: 32px 20px;
+  padding: 40px 24px 64px;
+  color: #172033;
 }
 
 .appointment-card {
-  padding: 32px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
+  margin-bottom: 16px;
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
 }
 
 .form-header {
-  margin-bottom: 24px;
+  color: #64748b;
+}
+
+.form-header h1 {
+  margin-top: 6px;
+  color: #172033;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.form-header p {
+  margin-top: 6px;
+}
+
+.step-label {
+  color: #2563eb;
+  font-size: 14px;
+  font-weight: 700;
 }
 
 .schedule-summary {
   padding: 16px;
   margin-bottom: 24px;
   border-radius: 8px;
-  background: #f5f5f5;
-  color: #222;
+  color: #334155;
+  background: #f7f9fc;
+  border: 1px solid #dbe3ef;
 }
 
 .appointment-form {
   display: grid;
   gap: 20px;
+  padding: 28px;
+  background: #fff;
+  border: 1px solid #dbe3ef;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 5%);
 }
 
 .form-group {
   display: grid;
   gap: 8px;
+  color: #334155;
 }
 
 .form-group input {
   padding: 10px 12px;
+  color: #172033;
+  background: #fff;
   border: 1px solid #aaa;
   border-radius: 6px;
   font: inherit;
+}
+
+.form-group input[type='radio'] {
+  accent-color: #2563eb;
 }
 
 .form-group input:focus {
@@ -287,11 +387,29 @@ onMounted(() => {
   font-size: 14px;
 }
 
-button[type='submit'] {
+.primary-button,
+.secondary-button {
   padding: 12px 20px;
-  border: 0;
+  font: inherit;
+  font-weight: 600;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.primary-button {
+  color: #fff;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+}
+
+.secondary-button {
+  color: #334155;
+  background: #fff;
+  border: 1px solid #cbd5e1;
+}
+
+.back-button {
+  margin-bottom: 24px;
 }
 
 button:disabled {

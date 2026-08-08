@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="Hospital.ClinicServices.WebApi/Hospital.ClinicServices.WebApi.csproj" />
+  <Project Path="Hospital.ClinicServices.WebApi.Tests/Hospital.ClinicServices.WebApi.Tests.csproj" />
 </Solution>

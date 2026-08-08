@@ -5,7 +5,7 @@ namespace Hospital.ClinicServices.WebApi.Services.Interfaces;
 
 public interface IAppointmentService
 {
-    Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request);
-    
+    Task<Appointment> RegisterAppointmentAsync(string nationalId, int scheduleId, DateTime? birthDate);
+
     Task<Appointment> RegisterFirstVisitAsync(FirstVisitRegisterRequestDto request);
 }

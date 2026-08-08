@@ -18,24 +18,13 @@ public class PatientController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] PatientRegisterRequestDto request)
     {
-        try
-        {
-            var patientId = await _patientService.RegisterPatientAsync(request);
 
-            return Created(string.Empty, new
-            {
-                success = true,
-                data = new { patientId }
-            });
-        }
-        catch (Exception exception)
+        var patientId = await _patientService.RegisterPatientAsync(request);
+
+        return Created(string.Empty, new
         {
-            return BadRequest(new ProblemDetails
-            {
-                Status = StatusCodes.Status400BadRequest,
-                Title = "建立病患失敗",
-                Detail = exception.Message
-            });
-        }
+            success = true,
+            data = new { patientId }
+        });
     }
 }

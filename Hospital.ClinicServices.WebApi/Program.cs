@@ -1,6 +1,7 @@
 using Hospital.ClinicServices.WebApi;
 using Hospital.ClinicServices.WebApi.Data;
 using Hospital.ClinicServices.WebApi.ExceptionHandlers;
+using Hospital.ClinicServices.WebApi.Extensions;
 using Hospital.ClinicServices.WebApi.Hubs;
 using Hospital.ClinicServices.WebApi.Services;
 using Hospital.ClinicServices.WebApi.Services.Interfaces;
@@ -22,11 +23,7 @@ builder.Services.AddCors(options =>
 });
 // Add services to the container.
 // Scoped 意思為每次請求都會建立一個新的實例，並在請求結束釋放該實例。
-builder.Services.AddScoped<IAppointmentService, AppointmentService>();
-builder.Services.AddScoped<IPatientService, PatientService>();
-builder.Services.AddScoped<IDepartmentService, DepartmentService>();
-builder.Services.AddScoped<IScheduleService, ScheduleService>();
-builder.Services.AddScoped<ICallingService, CallingService>();
+builder.Services.AddApplicationServices();
 //加入 SignalR 服務
 builder.Services.AddSignalR();
 

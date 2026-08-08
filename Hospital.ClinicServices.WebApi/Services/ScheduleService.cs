@@ -36,7 +36,7 @@ public class ScheduleService : IScheduleService
                 s.ServiceDate >= startOfWeek &&
                 s.ServiceDate < endOfWeek
             );
-        if( shift is 1 and <= 3 )
+        if (shift is >= 1 and <= 3)
         {
             query = query.Where(s=>s.Shift == shift);
         }

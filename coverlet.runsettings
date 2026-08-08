@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector friendlyName="XPlat Code Coverage">
+        <Configuration>
+          <Format>cobertura</Format>
+          <!-- 核心商業邏輯覆蓋率；排除啟動碼、資料模型、遷移與 HTTP/SignalR 邊界。 -->
+          <Include>[Hospital.ClinicServices.WebApi]*</Include>
+          <ExcludeByFile>**/Controllers/*.cs,**/Data/*.cs,**/DTOs/*.cs,**/Entities/*.cs,**/ExceptionHandlers/*.cs,**/Hubs/*.cs,**/Migrations/*.cs,**/Program.cs,**/WeatherForecast.cs</ExcludeByFile>
+          <ExcludeByAttribute>GeneratedCodeAttribute</ExcludeByAttribute>
+          <SingleHit>false</SingleHit>
+        </Configuration>
+      </DataCollector>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+</RunSettings>

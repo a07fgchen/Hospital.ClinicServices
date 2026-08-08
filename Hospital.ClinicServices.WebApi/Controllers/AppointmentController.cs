@@ -35,7 +35,11 @@ public class AppointmentController : ControllerBase
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
 
-        var result = await _appointmentService.RegisterAppointmentAsync(request);
+        var result = await _appointmentService.RegisterAppointmentAsync(
+            request.NationalId,
+            request.ScheduleId,
+            request.BirthDate
+        );
         return CreateRegistrationResponse(result);
     }
 

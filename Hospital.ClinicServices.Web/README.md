@@ -21,6 +21,12 @@
 
 ## 本機開發
 
+複製 `.env.example` 為 `.env`，並依後端網址調整：
+
+```env
+VITE_API_BASE_URL=http://localhost:5076
+```
+
 ```bash
 cd Hospital.ClinicServices.Web
 npm install
@@ -41,13 +47,3 @@ npm run lint
 - src/components：共用 UI 元件
 - src/router：路由設定
 - src/stores：狀態管理
-
-## 面試展示 checklist
-
-- [x] 前端可啟動並成功建置
-- [x] 主要頁面已建立
-- [ ] 主流程從 UI 到 API 能完整跑通
-- [ ] 錯誤提示與載入狀態補齊
-- [ ] 基本單元測試補齊
-- [ ] README 與 demo 內容整理完成
-- [ ] UI 互動與資料流再優化

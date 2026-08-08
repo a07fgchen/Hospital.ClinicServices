@@ -60,18 +60,25 @@ public class AppointmentService : IAppointmentService
     }
 
 
-    public async Task<Appointment> RegisterAppointmentAsync(RegisterRequestDto request)
+    public async Task<Appointment> RegisterAppointmentAsync(
+        string nationalId,
+        int scheduleId,
+        DateTime? birthDate
+        )
     {
         await using var transaction = await _context.Database.BeginTransactionAsync();
 
         try
         {
-            var normalizedNationalId = request.NationalId.Trim().ToUpperInvariant();
+            var normalizedNationalId = nationalId.Trim().ToUpperInvariant();
             var patient = await _context.Patients
-                .SingleOrDefaultAsync(patient => patient.NationalId == normalizedNationalId)
-                ?? throw new InvalidOperationException("找不到病患資料，請使用初診掛號。");
+                .SingleOrDefaultAsync(
+                    patient => patient.NationalId == normalizedNationalId &&
+                    patient.BirthDate == birthDate
+                )
+                ?? throw new InvalidOperationException("身分證字號或出生日期不正確，請確認後再試。");
 
-            var schedule = await GetScheduleForUpdateAsync(request.ScheduleId);
+            var schedule = await GetScheduleForUpdateAsync(scheduleId);
 
             EnsureScheduleIsAvailable(schedule);
 
@@ -132,9 +139,13 @@ public class AppointmentService : IAppointmentService
 
     private async Task<Schedule> GetScheduleForUpdateAsync(int scheduleId)
     {
-        return await _context.Schedules
-            //相當於Mysql的SELECT ... FOR UPDATE，鎖定該筆排班資料，避免同時有多個使用者搶同一個排班
-            .FromSqlRaw("SELECT * FROM Schedules WITH (UPDLOCK, ROWLOCK) WHERE ScheduleId = {0}", scheduleId)
-            .FirstOrDefaultAsync() ?? throw new InvalidOperationException("找不到該門診排班資訊。");
+        // SQL Server 正式環境需要悲觀鎖避免超賣；SQLite 測試環境由交易本身序列化寫入。
+        var query = _context.Database.IsSqlServer()
+            ? _context.Schedules.FromSqlInterpolated(
+                $"SELECT * FROM Schedules WITH (UPDLOCK, ROWLOCK) WHERE ScheduleId = {scheduleId}")
+            : _context.Schedules.Where(schedule => schedule.ScheduleId == scheduleId);
+
+        return await query.FirstOrDefaultAsync()
+            ?? throw new InvalidOperationException("找不到該門診排班資訊。");
     }
 }
