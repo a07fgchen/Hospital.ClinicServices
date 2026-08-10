@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Hospital.ClinicServices.WebApi.Entities;
 
-//門診排班表
+// 門診場次資料表
 [Table("Schedules")]
 public class Schedule
 {

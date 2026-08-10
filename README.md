@@ -4,13 +4,13 @@
 
 ## MVP 功能
 
-- 查詢科別與門診排班
+- 查詢科別與門診場次
 - 依週次、上午／下午／晚上篩選門診
 - 初診建立病患資料並掛號
 - 複診以身分證字號與生日掛號
 - 顯示掛號序號與掛號結果
 - 醫師呼叫下一號
-- 開發環境自動建立示範醫師、病患、排班與掛號資料
+- 開發環境自動建立示範醫師、病患、門診場次與掛號資料
 
 ## 技術架構
 
@@ -38,7 +38,7 @@ flowchart LR
     end
 ```
 
-主要資料關係：`Department` 擁有醫師與排班，`Schedule` 對應一位醫師及看診時段，`Appointment` 連結排班與病患。
+主要資料關係：`Department` 擁有醫師與門診場次，`Schedule` 對應一位醫師及看診時段，`Appointment` 連結門診場次與病患。
 
 ## 專案結構
 
@@ -96,19 +96,19 @@ npm run dev
 ### 民眾初診掛號
 
 1. 進入首頁，確認畫面顯示科別清單。
-2. 點選任一科別，進入門診排班。
-3. 切換「本週／下週」或診別，展示排班篩選。
+2. 點選任一科別，進入門診場次。
+3. 切換「本週／下週」或診別，展示門診場次篩選。
 4. 點選一位醫師的門診，進入預約掛號。
 5. 選擇「初診」，輸入未使用過的有效格式資料，例如身分證字號 `A123456789`、姓名、`09` 開頭的十碼手機與生日。
 6. 送出後確認畫面顯示「掛號成功」、看診號碼與掛號編號。
 
-若重複使用相同病患及排班，可展示系統拒絕重複掛號的業務規則。因 demo 排班由程式隨機建立，實際科別與醫師每個資料庫可能不同。
+若重複使用相同病患及門診場次，可展示系統拒絕重複掛號的業務規則。因 demo 門診場次由程式隨機建立，實際科別與醫師每個資料庫可能不同。
 
 ### Swagger 展示叫號
 
 1. 開啟 <http://localhost:5076/swagger>。
 2. 展開 `POST /api/doctor/{scheduleId}/next`。
-3. 輸入剛才掛號使用的排班編號並執行。
+3. 輸入剛才掛號使用的門診場次編號並執行。
 4. 確認回應中的 `currentCallingNumber` 遞增。
 
 ## 測試與建置
@@ -125,7 +125,7 @@ npm --prefix Hospital.ClinicServices.Web run build
 | Method | Endpoint | 用途 |
 | --- | --- | --- |
 | GET | `/api/department` | 取得科別 |
-| GET | `/api/schedule/{departmentId}` | 依科別、週次及診別取得排班 |
+| GET | `/api/schedule/{departmentId}` | 依科別、週次及診別取得門診場次 |
 | POST | `/api/appointment/register-first-visit` | 初診建檔並掛號 |
 | POST | `/api/appointment/register` | 複診掛號 |
 | POST | `/api/doctor/{scheduleId}/next` | 呼叫下一號 |

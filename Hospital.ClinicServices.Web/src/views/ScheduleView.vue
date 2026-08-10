@@ -21,7 +21,7 @@
       </select>
     </div>
     <div v-if="loading" class="loading-state">
-      門診排班載入中…
+      門診場次載入中…
     </div>
     <div v-else-if="errorMessage" class="error-state">
       <p>{{ errorMessage }}</p>
@@ -119,7 +119,7 @@ async function fetchSchedules() {
       throw new Error(
         errorData?.detail ??
         errorData?.message ??
-        '門診排班讀取失敗，請稍後再試'
+        '門診場次讀取失敗，請稍後再試'
       )
     }
 

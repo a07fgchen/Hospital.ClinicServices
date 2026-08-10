@@ -2,7 +2,7 @@
 
 ## 第一階段（約 0.5～1 天）
 
-- [x] 修正排班 `weekOffset`、日期上下限與星期欄位
+- [x] 修正門診場次 `weekOffset`、日期上下限與星期欄位
 - [x] 補上 `ICallingService` DI 註冊
 - [x] 移除 Vue 預設首頁與元件
 - [x] 確認全新資料庫可建置，且 Seeder 可正常執行

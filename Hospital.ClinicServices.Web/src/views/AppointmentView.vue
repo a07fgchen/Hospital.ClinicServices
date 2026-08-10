@@ -14,7 +14,7 @@
 
     <section v-if="!appointmentResult" class="schedule-summary">
       <h2>預約資訊</h2>
-      <p>排班編號: {{ flow.scheduleId }}</p>
+      <p>門診場次編號: {{ flow.scheduleId }}</p>
     </section>
 
     <section v-if="appointmentResult" class="success-card">

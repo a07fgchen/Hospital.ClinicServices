@@ -27,6 +27,11 @@ const router = createRouter({
       name: 'appointment-query',
       component: () => import('../views/AppointmentQueryView.vue'),
     },
+    {
+      path: '/calling',
+      name: 'calling',
+      component: () => import('../views/CallingView.vue'),
+    },
   ],
 })
 

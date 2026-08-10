@@ -11,7 +11,7 @@ public class Appointment
     public int AppointmentId {get; set;} //掛號序號
 
     [Required]
-    public int ScheduleId {get; set;} //排班序號
+    public int ScheduleId {get; set;} // 門診場次編號
 
     [ForeignKey("ScheduleId")]
     virtual public Schedule? Schedule {get; set;}

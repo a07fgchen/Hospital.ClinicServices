@@ -4,8 +4,8 @@ namespace Hospital.ClinicServices.WebApi.DTOs;
 
 public class FirstVisitRegisterRequestDto
 {
-    [Range(1, int.MaxValue, ErrorMessage = "請選擇有效的門診排班。")]
-    public int ScheduleId { get; set; } //排班序號
+    [Range(1, int.MaxValue, ErrorMessage = "請選擇有效的門診場次。")]
+    public int ScheduleId { get; set; } // 門診場次編號
 
     [Required(ErrorMessage = "身分證字號為必填。")]
     [RegularExpression("^[A-Z][12][0-9]{8}$", ErrorMessage = "身分證字號格式不正確。")]

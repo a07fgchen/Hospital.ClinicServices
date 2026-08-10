@@ -206,6 +206,6 @@ public class AppointmentService : IAppointmentService
             : _context.Schedules.Where(schedule => schedule.ScheduleId == scheduleId);
 
         return await query.FirstOrDefaultAsync()
-            ?? throw new InvalidOperationException("找不到該門診排班資訊。");
+            ?? throw new InvalidOperationException("找不到該門診場次資訊。");
     }
 }

@@ -10,6 +10,8 @@ import { RouterLink, RouterView } from 'vue-router'
 
     <nav>
       <RouterLink to="/department">門診掛號</RouterLink>
+      <RouterLink to="/appointment-query">掛號查詢</RouterLink>
+      <RouterLink to="/calling">門診叫號</RouterLink>
     </nav>
   </header>
 
@@ -50,5 +52,10 @@ nav a.router-link-active {
   max-width: 1280px;
   margin: 0 auto;
   padding: 24px;
+}
+
+nav {
+  display: flex;
+  gap: 16px;
 }
 </style>

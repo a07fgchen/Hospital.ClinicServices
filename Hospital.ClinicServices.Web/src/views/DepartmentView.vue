@@ -25,7 +25,7 @@
         <span class="department-name">
           {{ department.name }}
         </span>
-        <span class="card-action">查看排班 →</span>
+        <span class="card-action">查看門診場次 →</span>
       </button>
       <RouterLink class="query-link" to="/appointment-query">
         查詢我的門診

@@ -6,7 +6,7 @@ public class RegisterRequestDto
 {
     //相當於Laravel的Request驗證規則
     [Required]
-    public int ScheduleId { get; set; } //排班序號
+    public int ScheduleId { get; set; } // 門診場次編號
 
     [Required(ErrorMessage = "身分證字號為必填。")]
     [RegularExpression("^[A-Za-z][12][0-9]{8}$", ErrorMessage = "身分證字號格式不正確。")]

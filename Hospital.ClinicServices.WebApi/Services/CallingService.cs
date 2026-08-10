@@ -27,7 +27,7 @@ public class CallingService : ICallingService
 
         if (schedule == null)
         {
-            throw new Exception("找不到該門診排班。");
+            throw new Exception("找不到該門診場次。");
         }
 
         if (schedule.Status != 1)

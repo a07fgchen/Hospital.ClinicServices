@@ -1,6 +1,6 @@
 ﻿# Hospital.ClinicServices 後端 API
 
-這是一個基於 ASP.NET Core Web API 與 Entity Framework Core 建立的醫療掛號系統後端，提供門診、病患、排班、掛號與叫號相關 API。
+這是一個基於 ASP.NET Core Web API 與 Entity Framework Core 建立的醫療掛號系統後端，提供門診、病患、門診場次、掛號與叫號相關 API。
 
 ## 專案目標
 
@@ -39,7 +39,7 @@ http://localhost:5000/swagger
 
 - 病患相關 API
 - 科別與門診資料 API
-- 排班與掛號相關 API
+- 門診場次與掛號相關 API
 - 叫號流程相關 API
 
 ## 面試展示 checklist

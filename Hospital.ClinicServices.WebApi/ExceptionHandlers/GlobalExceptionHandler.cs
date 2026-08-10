@@ -33,7 +33,6 @@ public sealed class GlobalExceptionHandler(
                 StatusCodes.Status400BadRequest => exception.Message,
                 _ => "系統暫時無法處理請求，請稍後再試。"
             },
-            
             Instance = httpContext.Request.Path
         };
 
