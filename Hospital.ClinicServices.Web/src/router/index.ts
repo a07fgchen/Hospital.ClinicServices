@@ -22,6 +22,11 @@ const router = createRouter({
       name: 'appointment',
       component: () => import('../views/AppointmentView.vue'),
     },
+    {
+      path: '/appointment-query',
+      name: 'appointment-query',
+      component: () => import('../views/AppointmentQueryView.vue'),
+    },
   ],
 })
 

@@ -8,4 +8,6 @@ public interface IAppointmentService
     Task<Appointment> RegisterAppointmentAsync(string nationalId, int scheduleId, DateTime? birthDate);
 
     Task<Appointment> RegisterFirstVisitAsync(FirstVisitRegisterRequestDto request);
+
+    Task<List<AppointmentQueryResponseDto>> QueryAppointmentsAsync(string nationalId, DateTime? birthDate);
 }

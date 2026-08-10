@@ -5,9 +5,9 @@ namespace Hospital.ClinicServices.WebApi.Hubs;
 
 public class QueueHub : Hub
 {
-    public async Task JoinClinicQueueGroup(string clinicId)
+    public async Task JoinClinicQueueGroup(int scheduleId)
     {
-        await Groups.AddToGroupAsync(Context.ConnectionId, $"Clinic_{clinicId}");
+        await Groups.AddToGroupAsync(Context.ConnectionId, $"Clinic_{scheduleId}");
     }
 
     public async Task LeaveClinicQueueGroup(int scheduleId)

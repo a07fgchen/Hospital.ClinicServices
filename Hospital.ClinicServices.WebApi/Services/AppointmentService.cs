@@ -94,6 +94,66 @@ public class AppointmentService : IAppointmentService
         }
     }
 
+    public async Task<List<AppointmentQueryResponseDto>> QueryAppointmentsAsync(
+        string nationalId,
+        DateTime? birthDate
+    )
+    {
+        //因為呼叫端不一定只有API，可能沒經過Request DTO，所以這邊還需要驗證身分證字號與生日是否有輸入，若沒有輸入就直接丟出例外
+        if (string.IsNullOrWhiteSpace(nationalId) || birthDate is null)
+        {
+            throw new InvalidOperationException("請輸入身分證字號與生日。");
+        }
+
+        var normalizedNationalId = nationalId.Trim().ToUpperInvariant();
+
+        var patient = await _context.Patients
+            .AsNoTracking()
+            .FirstOrDefaultAsync(patient =>
+            patient.NationalId == normalizedNationalId &&
+            patient.BirthDate.Date == birthDate.Value.Date
+            ) ??
+            throw new InvalidOperationException("身分證字號或生日不正確。");
+
+        var today = DateTime.Today;
+
+        var appointments = await _context.Appointments
+            .AsNoTracking()
+            .Where(appointment =>
+                appointment.PatientId == patient.PatientId &&
+                appointment.AppointmentStatus != 1 &&
+                appointment.Schedule!.ServiceDate >= today)
+            .Include(appointment => appointment.Schedule)
+                .ThenInclude(schedule => schedule!.Doctor)
+            .OrderBy(appointment => appointment.Schedule!.ServiceDate)
+            .ToListAsync();
+
+        return appointments.Select(appointment =>
+       {
+           var schedule = appointment.Schedule!;
+           var isToday = schedule.ServiceDate.Date == today;
+
+           return new AppointmentQueryResponseDto
+           {
+               AppointmentId = appointment.AppointmentId,
+               ScheduleId = appointment.ScheduleId,
+               SequenceNumber = appointment.SequenceNumber,
+               ServiceDate = schedule.ServiceDate,
+               Shift = schedule.Shift,
+               DoctorName = schedule.Doctor?.Name ?? string.Empty,
+               RoomNumber = schedule.Doctor?.RoomNumber ?? string.Empty,
+               IsToday = isToday,
+
+               CurrentCallingNumber = isToday
+                   ? schedule.CurrentCallingNumber
+                   : null,
+
+               AppointmentStatus = appointment.AppointmentStatus
+           };
+       }).ToList();
+
+    }
+
     private async Task<Appointment> CreateAppointmentAsync(Schedule schedule, int patientId)
     {
         var isAlreadyRegistered = await _context.Appointments.AnyAsync(appointment =>

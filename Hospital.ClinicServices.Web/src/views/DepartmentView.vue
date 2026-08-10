@@ -19,14 +19,17 @@
       目前沒有可供掛號的科別。
     </section>
     <section v-else class="department-grid" aria-label="門診科別">
-      <button class="department-card" type="button" v-for="department in departments"
-        :key="department.departmentId" @click="selectDepartment(department.departmentId)">
+      <button class="department-card" type="button" v-for="department in departments" :key="department.departmentId"
+        @click="selectDepartment(department.departmentId)">
         <span class="department-icon" aria-hidden="true">＋</span>
         <span class="department-name">
           {{ department.name }}
         </span>
         <span class="card-action">查看排班 →</span>
       </button>
+      <RouterLink class="query-link" to="/appointment-query">
+        查詢我的門診
+      </RouterLink>
     </section>
   </main>
 </template>
@@ -190,5 +193,31 @@ onMounted(() => {
   border: 0;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.query-link {
+  display: inline-flex;
+  grid-column: 1 / -1;
+  justify-self: center;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  color: #fff;
+  font-weight: 600;
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  border-radius: 8px;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.query-link:hover {
+  color: #fff;
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+.query-link:focus-visible {
+  outline: 3px solid rgb(37 99 235 / 25%);
+  outline-offset: 2px;
 }
 </style>

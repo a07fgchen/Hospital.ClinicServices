@@ -14,7 +14,7 @@ public class AppointmentController : ControllerBase
     {
         _appointmentService = appointmentService;
     }
-
+    //民眾初診掛號API
     [HttpPost("register-first-visit")]
     public async Task<IActionResult> RegisterFirstVisitAsync([FromBody] FirstVisitRegisterRequestDto request)
     {
@@ -25,7 +25,7 @@ public class AppointmentController : ControllerBase
 
     }
 
-    //民眾掛號API 
+    //民眾複診掛號API 
     [HttpPost("register")]
     [Consumes("application/json")]
     [Produces("application/json")]
@@ -43,6 +43,20 @@ public class AppointmentController : ControllerBase
         return CreateRegistrationResponse(result);
     }
 
+    [HttpPost("query")]
+    public async Task<IActionResult> QueryAppointments(
+        AppointmentQueryRequestDto request)
+    {
+        var appointmets = await _appointmentService.QueryAppointmentsAsync(
+            request.NationalId,
+            request.BirthDate
+        );
+
+        return Ok(new
+        {
+            data = appointmets
+        });
+    }
     private CreatedResult CreateRegistrationResponse(Entities.Appointment result)
     {
         return Created(string.Empty, new

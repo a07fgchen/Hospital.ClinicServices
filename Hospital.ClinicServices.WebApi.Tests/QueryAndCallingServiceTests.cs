@@ -12,26 +12,6 @@ namespace Hospital.ClinicServices.WebApi.Tests;
 public sealed class QueryAndCallingServiceTests
 {
     [Fact]
-    public async Task PatientService_PersistsAllFieldsAndReturnsId()
-    {
-        await using var database = await TestDatabase.CreateAsync();
-        var request = new PatientRegisterRequestDto
-        {
-            NationalId = "A123456789", Name = "王小明", PhoneNumber = "0912345678",
-            BirthDate = new DateTime(1990, 1, 1)
-        };
-
-        var id = await new PatientService(database.Context).RegisterPatientAsync(request);
-
-        var patient = await database.Context.Patients.SingleAsync();
-        Assert.Equal(id, patient.PatientId);
-        Assert.Equal(request.NationalId, patient.NationalId);
-        Assert.Equal(request.Name, patient.Name);
-        Assert.Equal(request.PhoneNumber, patient.PhoneNumber);
-        Assert.Equal(request.BirthDate, patient.BirthDate);
-    }
-
-    [Fact]
     public async Task DepartmentService_ReturnsSeededDepartments()
     {
         await using var database = await TestDatabase.CreateAsync();

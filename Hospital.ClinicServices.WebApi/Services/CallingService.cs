@@ -41,19 +41,19 @@ public class CallingService : ICallingService
             throw new Exception("目前已為排隊等候的病人。");
         }
 
-        // 1. 叫號號碼遞增
+        //叫號號碼遞增
         schedule.CurrentCallingNumber++;
         _context.Schedules.Update(schedule);
         await _context.SaveChangesAsync();
 
-        // 2. 核心亮點：透過 SignalR 即時推播給「關注此診間」的所有用戶端
         // 傳送匿名物件，包含當前最新號碼、診間號碼與狀態
-        await _hubContext.Clients.Group($"Clinic_{scheduleId}").SendAsync("ReceiveNumberUpdate", new
-        {
-            RoomNumber = schedule.Doctor?.RoomNumber ?? "未指定診間",
-            schedule.ScheduleId,
-            schedule.CurrentCallingNumber,
-        });
+        await _hubContext.Clients.Group($"Clinic_{scheduleId}")
+            .SendAsync("ReceiveNumberUpdate", new
+            {
+                RoomNumber = schedule.Doctor?.RoomNumber ?? "未指定診間",
+                schedule.ScheduleId,
+                schedule.CurrentCallingNumber,
+            });
 
         return schedule;
     }

@@ -9,7 +9,6 @@ public static class ServiceCollectionExtensions
     {
         // Scoped 意思為每次請求都會建立一個新的實例，並在請求結束釋放該實例。
         services.AddScoped<IAppointmentService, AppointmentService>();
-        services.AddScoped<IPatientService, PatientService>();
         services.AddScoped<IDepartmentService, DepartmentService>();
         services.AddScoped<IScheduleService, ScheduleService>();
         services.AddScoped<ICallingService, CallingService>();
