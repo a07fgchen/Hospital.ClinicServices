@@ -26,14 +26,17 @@ jobs:
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
-      - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+      - name: Publish .NET app
+        run: dotnet publish Hospital.ClinicServices.WebApi/Hospital.ClinicServices.WebApi.csproj -c Release -o ./publish
+
+      - name: Zip publish output
+        run: zip -r app.zip ./publish
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ./app.zip
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,6 +50,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-app
+          path: ./app
       
       - name: Login to Azure
         uses: azure/login@v2
@@ -61,5 +65,6 @@ jobs:
         with:
           app-name: 'clinic'
           slot-name: 'Production'
-          package: .
+          package: ./app/app.zip
+          type: zip
           
